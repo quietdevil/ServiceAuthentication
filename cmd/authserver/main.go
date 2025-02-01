@@ -9,6 +9,7 @@ import (
 	"github.com/brianvoe/gofakeit"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
+	"google.golang.org/protobuf/types/known/emptypb"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
@@ -25,6 +26,18 @@ func (s *server) Get(ctx context.Context, req *desc.GetRequest) (*desc.GetRespon
 		UpdatedAt: timestamppb.New(gofakeit.Date()),
 		Role:      *desc.Enum_admin.Enum(),
 	}, nil
+}
+
+func (s *server) Create(ctx context.Context, req *desc.CreateRequest) (*desc.CreateResponse, error) {
+	return &desc.CreateResponse{Id: int64(gofakeit.Uint16())}, nil
+}
+
+func (s *server) Update(ctx context.Context, req *desc.UpdateRequest) (*emptypb.Empty, error) {
+	return &emptypb.Empty{}, nil
+}
+
+func (s *server) Delete(ctx context.Context, req *desc.DeleteRequest) (*emptypb.Empty, error) {
+	return &emptypb.Empty{}, nil
 }
 
 func main() {

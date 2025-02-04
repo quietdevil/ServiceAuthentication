@@ -2,55 +2,61 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"net"
+	"os"
+	api "serviceauth/internal/api/user"
+	repos "serviceauth/internal/repository/user"
+	serv "serviceauth/internal/service/user"
 	desc "serviceauth/pkg/auth_v1"
 
-	"github.com/brianvoe/gofakeit"
+	"github.com/jackc/pgx/v5/pgxpool"
+	"github.com/joho/godotenv"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
-	"google.golang.org/protobuf/types/known/emptypb"
-	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
-type server struct {
-	desc.UnimplementedAuthenticationServer
+type DBConfig struct {
+	user     string
+	password string
+	port     string
+	dbname   string
 }
 
-func (s *server) Get(ctx context.Context, req *desc.GetRequest) (*desc.GetResponse, error) {
-	return &desc.GetResponse{
-		Id:        req.GetId(),
-		Name:      gofakeit.Name(),
-		Email:     gofakeit.Email(),
-		CreatedAt: timestamppb.New(gofakeit.Date()),
-		UpdatedAt: timestamppb.New(gofakeit.Date()),
-		Role:      *desc.Enum_admin.Enum(),
-	}, nil
-}
-
-func (s *server) Create(ctx context.Context, req *desc.CreateRequest) (*desc.CreateResponse, error) {
-	return &desc.CreateResponse{Id: int64(gofakeit.Uint16())}, nil
-}
-
-func (s *server) Update(ctx context.Context, req *desc.UpdateRequest) (*emptypb.Empty, error) {
-	return &emptypb.Empty{}, nil
-}
-
-func (s *server) Delete(ctx context.Context, req *desc.DeleteRequest) (*emptypb.Empty, error) {
-	return &emptypb.Empty{}, nil
+func (db DBConfig) String() string {
+	return fmt.Sprintf("postgres://%v:%v@localhost:%v/%v", db.user, db.password, db.port, db.dbname)
 }
 
 func main() {
+	ctx := context.Background()
+	if err := godotenv.Load(); err != nil {
+		log.Fatal("Error loading .env file")
+	}
+	dbconfig := DBConfig{
+		user:     os.Getenv("PG_USER"),
+		password: os.Getenv("PG_PASSWORD"),
+		port:     os.Getenv("PG_PORT"),
+		dbname:   os.Getenv("PG_DATABASE_NAME"),
+	}
 	lis, err := net.Listen("tcp", "localhost:50000")
 	if err != nil {
 		log.Fatal(err)
 	}
+	pool, err := pgxpool.New(ctx, dbconfig.String())
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer pool.Close()
 
+	repository := repos.NewRepository(pool)
+	service := serv.NewService(repository)
+	server := api.NewImplementation(service)
 	s := grpc.NewServer()
 	reflection.Register(s)
-	desc.RegisterAuthenticationServer(s, &server{})
+	desc.RegisterAuthenticationServer(s, server)
 
-	log.Printf("server listing %v", lis.Addr().Network())
+	log.Printf("server listening %v", lis.Addr().String())
 
 	if err = s.Serve(lis); err != nil {
 		log.Fatal(err)

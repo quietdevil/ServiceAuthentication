@@ -38,11 +38,15 @@ func (r *repos) Create(ctx context.Context, user *model.UserInfo) (int, error) {
 	if err := r.db.Ping(ctx); err != nil {
 		return 0, err
 	}
-	_, err := r.db.Exec(ctx, "INSERT INTO users (name, email, password) VALUES ($1, $2, $3) RETURNING id", user.Name, user.Email, user.Password)
+	row, err := r.db.Query(ctx, "INSERT INTO users (name, email, password) VALUES ($1, $2, $3) RETURNING id", user.Name, user.Email, user.Password)
+	var idU int
+	for row.Next() {
+		row.Scan(&idU)
+	}
 	if err != nil {
 		return 0, err
 	}
-	return 1, nil
+	return idU, nil
 }
 
 func (r *repos) Delete(ctx context.Context, id int) error {

@@ -11,7 +11,6 @@ import (
 
 func (s *Implementation) Get(ctx context.Context, req *desc.GetRequest) (*desc.GetResponse, error) {
 	user, err := s.userService.Get(ctx, int(req.GetId()))
-	fmt.Println(user)
 	if err != nil {
 		return &desc.GetResponse{}, err
 	}

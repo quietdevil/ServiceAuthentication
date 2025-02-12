@@ -2,27 +2,31 @@ package user
 
 import (
 	"context"
+	"serviceauth/internal/client/db"
 	"serviceauth/internal/model"
+	"serviceauth/internal/repository"
 	"serviceauth/internal/repository/user/convertor"
 	reposModel "serviceauth/internal/repository/user/model"
-
-	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 type repos struct {
-	db *pgxpool.Pool
+	db db.Client
 }
 
-func NewRepository(db *pgxpool.Pool) *repos {
+func NewRepository(db db.Client) repository.UserRepository {
 	return &repos{db: db}
 }
 
 func (r *repos) Get(ctx context.Context, id int) (*model.User, error) {
-	if err := r.db.Ping(ctx); err != nil {
+	if err := r.db.DB().Ping(ctx); err != nil {
 		return &model.User{}, err
 	}
-	row, err := r.db.Query(ctx, "SELECT id, name, email, password, created_at, updated_at FROM users WHERE id=$1", id)
+	query := db.Query{
+		Name:        "repository_get",
+		QueryString: "SELECT id, name, email, password, created_at, updated_at FROM users WHERE id=$1",
+	}
 
+	row, err := r.db.DB().QueryContext(ctx, query, id)
 	if err != nil {
 		return &model.User{}, err
 	}
@@ -35,10 +39,15 @@ func (r *repos) Get(ctx context.Context, id int) (*model.User, error) {
 }
 
 func (r *repos) Create(ctx context.Context, user *model.UserInfo) (int, error) {
-	if err := r.db.Ping(ctx); err != nil {
+	if err := r.db.DB().Ping(ctx); err != nil {
 		return 0, err
 	}
-	row, err := r.db.Query(ctx, "INSERT INTO users (name, email, password) VALUES ($1, $2, $3) RETURNING id", user.Name, user.Email, user.Password)
+	query := db.Query{
+		Name:        "repository_create",
+		QueryString: "INSERT INTO users (name, email, password) VALUES ($1, $2, $3)",
+	}
+
+	row, err := r.db.DB().QueryContext(ctx, query, user.Name, user.Email, user.Password)
 	var idU int
 	for row.Next() {
 		row.Scan(&idU)
@@ -50,7 +59,15 @@ func (r *repos) Create(ctx context.Context, user *model.UserInfo) (int, error) {
 }
 
 func (r *repos) Delete(ctx context.Context, id int) error {
-	_, err := r.db.Exec(ctx, "DELETE FROM users WHERE id=$1", id)
+	if err := r.db.DB().Ping(ctx); err != nil {
+		return err
+	}
+
+	query := db.Query{
+		Name:        "repository_delete",
+		QueryString: "DELETE FROM users WHERE id=$1",
+	}
+	_, err := r.db.DB().ExecContext(ctx, query, id)
 	if err != nil {
 		return err
 	}
@@ -58,7 +75,14 @@ func (r *repos) Delete(ctx context.Context, id int) error {
 }
 
 func (r *repos) Update(ctx context.Context, user *model.UserUpdate) error {
-	_, err := r.db.Exec(ctx, "UPDATE users SET name = $1, email = $2, updated_at = now() WHERE id=$3", user.Name, user.Email, user.Id)
+	if err := r.db.DB().Ping(ctx); err != nil {
+		return err
+	}
+	query := db.Query{
+		Name:        "repository_update",
+		QueryString: "UPDATE users SET name = $1, email = $2, updated_at = now() WHERE id=$3",
+	}
+	_, err := r.db.DB().ExecContext(ctx, query, user.Name, user.Email, user.Id)
 	if err != nil {
 		return err
 	}

@@ -41,7 +41,7 @@ func (a *App) RunGRPCServer() error {
 	if err != nil {
 		log.Fatal(err)
 	}
-	fmt.Printf("Server started on %v", a.serviceProvider.GrpcConfig.Address())
+	fmt.Printf("Server started on %v\n", a.serviceProvider.GrpcConfig.Address())
 	if err = a.gRPCserver.Serve(lis); err != nil {
 		return err
 	}

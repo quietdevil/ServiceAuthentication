@@ -3,6 +3,7 @@ package repository
 import (
 	"context"
 	"serviceauth/internal/model"
+	l "serviceauth/internal/repository/logs/model"
 )
 
 // urlExample := "postgres://username:password@localhost:5432/database_name"
@@ -12,4 +13,8 @@ type UserRepository interface {
 	Create(context.Context, *model.UserInfo) (int, error)
 	Delete(context.Context, int) error
 	Update(context.Context, *model.UserUpdate) error
+}
+
+type Logger interface {
+	Create(context.Context, l.Logs) error
 }

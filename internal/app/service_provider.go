@@ -4,20 +4,24 @@ import (
 	"context"
 	"log"
 	api "serviceauth/internal/api/user"
+	"serviceauth/internal/client/db"
+	"serviceauth/internal/client/db/pg"
+	"serviceauth/internal/client/db/transaction"
 	"serviceauth/internal/closer"
 	"serviceauth/internal/config"
 	"serviceauth/internal/repository"
+	"serviceauth/internal/repository/logs"
 	repos "serviceauth/internal/repository/user"
 	"serviceauth/internal/service"
 	serv "serviceauth/internal/service/user"
-
-	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 type serviceProvider struct {
 	PgConfig       *config.PGConfig
 	GrpcConfig     config.GRPCConfig
-	Pool           *pgxpool.Pool
+	ClientDB       db.Client
+	TxManager      db.TxManager
+	Logger         repository.Logger
 	Repository     repository.UserRepository
 	Service        service.UserService
 	Implemintation *api.Implementation
@@ -51,37 +55,51 @@ func (s *serviceProvider) GetGrpcConfig() config.GRPCConfig {
 	return s.GrpcConfig
 }
 
-func (s *serviceProvider) GetPool(ctx context.Context) *pgxpool.Pool {
-	if s.Pool == nil {
-		pg, err := pgxpool.New(ctx, s.GetPgConfig().GetDSN())
+func (s *serviceProvider) GetClient(ctx context.Context) db.Client {
+	if s.ClientDB == nil {
+		clientdb, err := pg.NewPgClient(ctx, s.GetPgConfig().GetDSN())
 		if err != nil {
 			log.Fatal(err)
 		}
-		if err = pg.Ping(ctx); err != nil {
+		if err = clientdb.DB().Ping(ctx); err != nil {
 			log.Fatal(err)
 		}
-		closer.Add(func() error {
-			pg.Close()
-			return nil
-		})
-		s.Pool = pg
+
+		closer.Add(clientdb.Close)
+		s.ClientDB = clientdb
 
 	}
-	return s.Pool
+	return s.ClientDB
 }
 
 func (s *serviceProvider) GetRepository(ctx context.Context) repository.UserRepository {
 	if s.Repository == nil {
-		rep := repos.NewRepository(s.GetPool(ctx))
+		rep := repos.NewRepository(s.GetClient(ctx))
 		s.Repository = rep
 	}
 	return s.Repository
 
 }
 
+func (s *serviceProvider) GetTxManager(ctx context.Context) db.TxManager {
+	if s.TxManager == nil {
+		man := transaction.NewManager(s.ClientDB.DB())
+		s.TxManager = man
+	}
+	return s.TxManager
+}
+
+func (s *serviceProvider) Logs(ctx context.Context) repository.Logger {
+	if s.Logger == nil {
+		log := logs.NewLogs(s.GetClient(ctx))
+		s.Logger = log
+	}
+	return s.Logger
+}
+
 func (s *serviceProvider) GetService(ctx context.Context) service.UserService {
 	if s.Service == nil {
-		service := serv.NewService(s.GetRepository(ctx))
+		service := serv.NewService(s.GetRepository(ctx), s.GetTxManager(ctx), s.Logs(ctx))
 		s.Service = service
 	}
 	return s.Service

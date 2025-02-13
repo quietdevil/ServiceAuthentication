@@ -5,9 +5,10 @@ import (
 	"fmt"
 	"log"
 	"net"
-	"serviceauth/internal/closer"
 	"serviceauth/internal/config"
 	"serviceauth/pkg/auth_v1"
+
+	closer "github.com/quietdevil/Platform_common/pkg/closer"
 
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"

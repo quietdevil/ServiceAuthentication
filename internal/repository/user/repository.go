@@ -2,11 +2,12 @@ package user
 
 import (
 	"context"
-	"serviceauth/internal/client/db"
 	"serviceauth/internal/model"
 	"serviceauth/internal/repository"
 	"serviceauth/internal/repository/user/convertor"
 	reposModel "serviceauth/internal/repository/user/model"
+
+	db "github.com/quietdevil/Platform_common/pkg/db"
 )
 
 type repos struct {
@@ -22,11 +23,11 @@ func (r *repos) Get(ctx context.Context, id int) (*model.User, error) {
 		return &model.User{}, err
 	}
 	query := db.Query{
-		Name:        "repository_get",
-		QueryString: "SELECT id, name, email, password, created_at, updated_at FROM users WHERE id=$1",
+		Name:     "repository_get",
+		QueryStr: "SELECT id, name, email, password, created_at, updated_at FROM users WHERE id=$1",
 	}
 
-	row, err := r.db.DB().QueryContext(ctx, query, id)
+	row, err := r.db.DB().ContextQuery(ctx, query, id)
 	if err != nil {
 		return &model.User{}, err
 	}
@@ -43,11 +44,11 @@ func (r *repos) Create(ctx context.Context, user *model.UserInfo) (int, error) {
 		return 0, err
 	}
 	query := db.Query{
-		Name:        "repository_create",
-		QueryString: "INSERT INTO users (name, email, password) VALUES ($1, $2, $3)",
+		Name:     "repository_create",
+		QueryStr: "INSERT INTO users (name, email, password) VALUES ($1, $2, $3)",
 	}
 
-	row, err := r.db.DB().QueryContext(ctx, query, user.Name, user.Email, user.Password)
+	row, err := r.db.DB().ContextQuery(ctx, query, user.Name, user.Email, user.Password)
 	var idU int
 	for row.Next() {
 		row.Scan(&idU)
@@ -64,10 +65,10 @@ func (r *repos) Delete(ctx context.Context, id int) error {
 	}
 
 	query := db.Query{
-		Name:        "repository_delete",
-		QueryString: "DELETE FROM users WHERE id=$1",
+		Name:     "repository_delete",
+		QueryStr: "DELETE FROM users WHERE id=$1",
 	}
-	_, err := r.db.DB().ExecContext(ctx, query, id)
+	_, err := r.db.DB().ContextExec(ctx, query, id)
 	if err != nil {
 		return err
 	}
@@ -79,10 +80,10 @@ func (r *repos) Update(ctx context.Context, user *model.UserUpdate) error {
 		return err
 	}
 	query := db.Query{
-		Name:        "repository_update",
-		QueryString: "UPDATE users SET name = $1, email = $2, updated_at = now() WHERE id=$3",
+		Name:     "repository_update",
+		QueryStr: "UPDATE users SET name = $1, email = $2, updated_at = now() WHERE id=$3",
 	}
-	_, err := r.db.DB().ExecContext(ctx, query, user.Name, user.Email, user.Id)
+	_, err := r.db.DB().ContextExec(ctx, query, user.Name, user.Email, user.Id)
 	if err != nil {
 		return err
 	}

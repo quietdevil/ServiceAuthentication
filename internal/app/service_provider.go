@@ -4,16 +4,18 @@ import (
 	"context"
 	"log"
 	api "serviceauth/internal/api/user"
-	"serviceauth/internal/client/db"
-	"serviceauth/internal/client/db/pg"
-	"serviceauth/internal/client/db/transaction"
-	"serviceauth/internal/closer"
 	"serviceauth/internal/config"
 	"serviceauth/internal/repository"
 	"serviceauth/internal/repository/logs"
 	repos "serviceauth/internal/repository/user"
 	"serviceauth/internal/service"
 	serv "serviceauth/internal/service/user"
+
+	db "github.com/quietdevil/Platform_common/pkg/db"
+	pg "github.com/quietdevil/Platform_common/pkg/db/pg"
+	transaction "github.com/quietdevil/Platform_common/pkg/db/transaction"
+
+	closer "github.com/quietdevil/Platform_common/pkg/closer"
 )
 
 type serviceProvider struct {
@@ -57,7 +59,7 @@ func (s *serviceProvider) GetGrpcConfig() config.GRPCConfig {
 
 func (s *serviceProvider) GetClient(ctx context.Context) db.Client {
 	if s.ClientDB == nil {
-		clientdb, err := pg.NewPgClient(ctx, s.GetPgConfig().GetDSN())
+		clientdb, err := pg.NewDBClient(ctx, s.GetPgConfig().GetDSN())
 		if err != nil {
 			log.Fatal(err)
 		}

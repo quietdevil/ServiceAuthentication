@@ -2,9 +2,10 @@ package logs
 
 import (
 	"context"
-	"serviceauth/internal/client/db"
 	"serviceauth/internal/repository"
 	l "serviceauth/internal/repository/logs/model"
+
+	db "github.com/quietdevil/Platform_common/pkg/db"
 )
 
 type Logs struct {
@@ -17,11 +18,11 @@ func NewLogs(db db.Client) repository.Logger {
 
 func (l *Logs) Create(ctx context.Context, log l.Logs) error {
 	q := db.Query{
-		Name:        log.Name,
-		QueryString: "INSERT INTO logs (name, description) VALUES ($1, $2)",
+		Name:     log.Name,
+		QueryStr: "INSERT INTO logs (name, description) VALUES ($1, $2)",
 	}
 
-	_, err := l.DB.DB().ExecContext(ctx, q, log.Name, log.Description)
+	_, err := l.DB.DB().ContextExec(ctx, q, log.Name, log.Description)
 	if err != nil {
 		return err
 	}

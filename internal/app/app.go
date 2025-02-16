@@ -6,6 +6,7 @@ import (
 	"log"
 	"net"
 	"serviceauth/internal/config"
+	"serviceauth/internal/interceptor"
 	"serviceauth/pkg/auth_v1"
 
 	closer "github.com/quietdevil/Platform_common/pkg/closer"
@@ -81,7 +82,8 @@ func (a *App) initServiceProvider(_ context.Context) error {
 }
 
 func (a *App) initGrpcServer(ctx context.Context) error {
-	a.gRPCserver = grpc.NewServer(grpc.Creds(insecure.NewCredentials()))
+	a.gRPCserver = grpc.NewServer(grpc.Creds(insecure.NewCredentials()),
+		grpc.UnaryInterceptor(interceptor.ValidateInterceptor))
 	reflection.Register(a.gRPCserver)
 	auth_v1.RegisterAuthenticationServer(a.gRPCserver, a.serviceProvider.GetImplemintation(ctx))
 	return nil

@@ -19,7 +19,7 @@ import (
 )
 
 type serviceProvider struct {
-	PgConfig       *config.PGConfig
+	PgConfig       config.PgConfig
 	GrpcConfig     config.GRPCConfig
 	ClientDB       db.Client
 	TxManager      db.TxManager
@@ -33,7 +33,7 @@ func NewServiceProvider() *serviceProvider {
 	return &serviceProvider{}
 }
 
-func (s *serviceProvider) GetPgConfig() *config.PGConfig {
+func (s *serviceProvider) GetPgConfig() config.PgConfig {
 	if s.PgConfig == nil {
 		pg, err := config.NewPgConfig()
 		if err != nil {
@@ -59,7 +59,7 @@ func (s *serviceProvider) GetGrpcConfig() config.GRPCConfig {
 
 func (s *serviceProvider) GetClient(ctx context.Context) db.Client {
 	if s.ClientDB == nil {
-		clientdb, err := pg.NewDBClient(ctx, s.GetPgConfig().GetDSN())
+		clientdb, err := pg.NewDBClient(ctx, s.GetPgConfig().DSN())
 		if err != nil {
 			log.Fatal(err)
 		}

@@ -5,6 +5,7 @@ package auth_v1;
 import "google/protobuf/timestamp.proto";
 import "google/protobuf/empty.proto";
 import "google/protobuf/wrappers.proto";
+import "validate/validate.proto";
 
 option go_package = "serviceauth/pkg/auth_v1;auth_v1";
 
@@ -21,10 +22,10 @@ enum Enum {
 }
 
 message CreateRequest {
-    string name = 1;
-    string email = 2;
-    string password = 3;
-    string password_confirm = 4;
+    string name = 1 [(validate.rules).string = {min_len: 4, max_len: 13}];
+    string email = 2 [(validate.rules).string.email = true];
+    string password = 3 [(validate.rules).string.pattern = "(?i)^[0-9a-f]+$"];
+    string password_confirm = 4 [(validate.rules).string.pattern = "(?i)^[0-9a-f]+$"];
     Enum role = 5;
 }
 
@@ -47,8 +48,8 @@ message GetResponse {
 
 message UpdateRequest {
     int64 id = 1;
-    google.protobuf.StringValue name = 2;
-    google.protobuf.StringValue email = 3;
+    google.protobuf.StringValue name = 2 [(validate.rules).string = {min_len: 4, max_len: 13}];
+    google.protobuf.StringValue email = 3 [(validate.rules).string.email = true];
 }
 
 message DeleteRequest {

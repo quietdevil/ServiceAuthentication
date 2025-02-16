@@ -19,7 +19,6 @@ func (s *Implementation) Get(ctx context.Context, req *desc.GetRequest) (*desc.G
 }
 
 func (s *Implementation) Create(ctx context.Context, req *desc.CreateRequest) (*desc.CreateResponse, error) {
-
 	id, err := s.userService.Create(ctx, convector.FromGrpsIntoModel(req))
 	if err != nil {
 		fmt.Println(err)

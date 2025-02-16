@@ -5,20 +5,24 @@ import (
 	"os"
 )
 
-type PGConfig struct {
-	DSN string
+type PgConfig interface {
+	DSN() string
 }
 
-func NewPgConfig() (*PGConfig, error) {
+type PGConfig struct {
+	Dsn string
+}
+
+func NewPgConfig() (PgConfig, error) {
 	dsn := os.Getenv("DSN")
 	if len(dsn) == 0 {
 		return nil, errors.New("don't parse dsn")
 	}
 	return &PGConfig{
-		DSN: dsn,
+		Dsn: dsn,
 	}, nil
 }
 
-func (c *PGConfig) GetDSN() string {
-	return c.DSN
+func (c *PGConfig) DSN() string {
+	return c.Dsn
 }

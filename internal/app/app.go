@@ -3,13 +3,14 @@ package app
 import (
 	"context"
 	"fmt"
+	closer "github.com/quietdevil/Platform_common/pkg/closer"
 	"log"
 	"net"
 	"serviceauth/internal/config"
 	"serviceauth/internal/interceptor"
+	"serviceauth/pkg/access_v1"
+	auth_user "serviceauth/pkg/auth_user_v1"
 	"serviceauth/pkg/auth_v1"
-
-	closer "github.com/quietdevil/Platform_common/pkg/closer"
 
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
@@ -39,11 +40,11 @@ func (a *App) Run() error {
 }
 
 func (a *App) RunGRPCServer() error {
-	lis, err := net.Listen("tcp", a.serviceProvider.GetGrpcConfig().Address())
+	lis, err := net.Listen("tcp", a.serviceProvider.GrpcConfig().Address())
 	if err != nil {
 		log.Fatal(err)
 	}
-	fmt.Printf("Server started on %v\n", a.serviceProvider.GrpcConfig.Address())
+	fmt.Printf("Server started on %v\n", a.serviceProvider.grpcConfig.Address())
 	if err = a.gRPCserver.Serve(lis); err != nil {
 		return err
 	}
@@ -84,7 +85,10 @@ func (a *App) initServiceProvider(_ context.Context) error {
 func (a *App) initGrpcServer(ctx context.Context) error {
 	a.gRPCserver = grpc.NewServer(grpc.Creds(insecure.NewCredentials()),
 		grpc.UnaryInterceptor(interceptor.ValidateInterceptor))
+
 	reflection.Register(a.gRPCserver)
-	auth_v1.RegisterAuthenticationServer(a.gRPCserver, a.serviceProvider.GetImplemintation(ctx))
+	auth_user.RegisterAuthenticationUserV1Server(a.gRPCserver, a.serviceProvider.ImplementationUser(ctx))
+	auth_v1.RegisterAuthenticationV1Server(a.gRPCserver, a.serviceProvider.ImplementationAuth(ctx))
+	access_v1.RegisterAccessV1Server(a.gRPCserver, a.serviceProvider.ImplementationAccess(ctx))
 	return nil
 }

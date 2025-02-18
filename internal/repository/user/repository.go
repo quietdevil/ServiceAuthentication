@@ -2,6 +2,7 @@ package user
 
 import (
 	"context"
+	"fmt"
 	"serviceauth/internal/model"
 	"serviceauth/internal/repository"
 	"serviceauth/internal/repository/user/convertor"
@@ -22,10 +23,16 @@ func (r *repos) Get(ctx context.Context, id int) (*model.User, error) {
 	if err := r.db.DB().Ping(ctx); err != nil {
 		return &model.User{}, err
 	}
+
 	query := db.Query{
 		Name:     "repository_get",
 		QueryStr: "SELECT id, name, email, password, created_at, updated_at FROM users WHERE id=$1",
 	}
+
+	//switch a.(type) {
+	//case string:
+	//	query.QueryStr = "SELECT id, name, email, password, created_at, updated_at FROM users WHERE name=$1"
+	//}
 
 	row, err := r.db.DB().ContextQuery(ctx, query, id)
 	if err != nil {
@@ -36,6 +43,7 @@ func (r *repos) Get(ctx context.Context, id int) (*model.User, error) {
 
 		row.Scan(&user.Id, &user.Name, &user.Email, &user.Password, &user.Created_at, &user.Updated_at)
 	}
+	fmt.Println(user.Password)
 	return convertor.ReposUserIntoServiceFromRepos(user), nil
 }
 
@@ -47,7 +55,6 @@ func (r *repos) Create(ctx context.Context, user *model.UserInfo) (int, error) {
 		Name:     "repository_create",
 		QueryStr: "INSERT INTO users (name, email, password) VALUES ($1, $2, $3)",
 	}
-
 	row, err := r.db.DB().ContextQuery(ctx, query, user.Name, user.Email, user.Password)
 	var idU int
 	for row.Next() {

@@ -2,7 +2,8 @@ package convector
 
 import (
 	"serviceauth/internal/model"
-	desc "serviceauth/pkg/auth_v1"
+	desc "serviceauth/pkg/auth_user_v1"
+	auth "serviceauth/pkg/auth_v1"
 
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
@@ -30,5 +31,12 @@ func FromGrpsIntoModelUpdate(req *desc.UpdateRequest) *model.UserUpdate {
 		Id:    int(req.GetId()),
 		Name:  req.GetName().Value,
 		Email: req.GetEmail().Value,
+	}
+}
+
+func FromGprcLogIntoUserLogin(req *auth.LoginRequest) *model.UserLogin {
+	return &model.UserLogin{
+		Username: req.GetUsername(),
+		Password: req.GetPassword(),
 	}
 }

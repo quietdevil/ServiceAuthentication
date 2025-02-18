@@ -38,7 +38,7 @@ func (s *serviceUser) Delete(ctx context.Context, id int) error {
 func (s *serviceUser) Get(ctx context.Context, id int) (*model.User, error) {
 	user, err := s.userRepository.Get(ctx, id)
 	if err != nil {
-		return &model.User{}, err
+		return nil, err
 	}
 	return user, nil
 }

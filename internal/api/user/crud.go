@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 	"serviceauth/internal/convector"
-	desc "serviceauth/pkg/auth_v1"
+	desc "serviceauth/pkg/auth_user_v1"
 
 	"google.golang.org/protobuf/types/known/emptypb"
 )

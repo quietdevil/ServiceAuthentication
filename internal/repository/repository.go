@@ -18,3 +18,11 @@ type UserRepository interface {
 type Logger interface {
 	Create(context.Context, l.Logs) error
 }
+
+type AccessRepository interface {
+	Roles(context.Context, int) error
+}
+
+type AuthenticationRepository interface {
+	GetUserByUsername(context.Context, string) (*model.User, error)
+}

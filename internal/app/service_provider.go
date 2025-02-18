@@ -3,13 +3,19 @@ package app
 import (
 	"context"
 	"log"
-	api "serviceauth/internal/api/user"
+	api_access "serviceauth/internal/api/access"
+	api_auth "serviceauth/internal/api/authentication"
+	api_user "serviceauth/internal/api/user"
 	"serviceauth/internal/config"
 	"serviceauth/internal/repository"
+	repos_access "serviceauth/internal/repository/access"
+	repos_auth "serviceauth/internal/repository/authentication"
 	"serviceauth/internal/repository/logs"
-	repos "serviceauth/internal/repository/user"
+	repos_user "serviceauth/internal/repository/user"
 	"serviceauth/internal/service"
-	serv "serviceauth/internal/service/user"
+	"serviceauth/internal/service/access"
+	"serviceauth/internal/service/authentication"
+	serv_user "serviceauth/internal/service/user"
 
 	db "github.com/quietdevil/Platform_common/pkg/db"
 	pg "github.com/quietdevil/Platform_common/pkg/db/pg"
@@ -19,98 +25,151 @@ import (
 )
 
 type serviceProvider struct {
-	PgConfig       config.PgConfig
-	GrpcConfig     config.GRPCConfig
-	ClientDB       db.Client
-	TxManager      db.TxManager
-	Logger         repository.Logger
-	Repository     repository.UserRepository
-	Service        service.UserService
-	Implemintation *api.Implementation
+	pgConfig              config.PgConfig
+	grpcConfig            config.GRPCConfig
+	clientDB              db.Client
+	txManager             db.TxManager
+	logger                repository.Logger
+	repositoryUser        repository.UserRepository
+	repositoryAccess      repository.AccessRepository
+	repositoryAuth        repository.AuthenticationRepository
+	serviceUser           service.UserService
+	serviceAccess         service.AccessService
+	serviceAuthentication service.AuthenticationService
+	implementation        *api_user.Implementation
+	implementationAuth    *api_auth.ImplementationAuthentication
+	implementationAccess  *api_access.ImplementationAccess
 }
 
 func NewServiceProvider() *serviceProvider {
 	return &serviceProvider{}
 }
 
-func (s *serviceProvider) GetPgConfig() config.PgConfig {
-	if s.PgConfig == nil {
-		pg, err := config.NewPgConfig()
+func (s *serviceProvider) PgConfig() config.PgConfig {
+	if s.pgConfig == nil {
+		pgConf, err := config.NewPgConfig()
 		if err != nil {
 			log.Fatal(err)
 		}
 
-		s.PgConfig = pg
+		s.pgConfig = pgConf
 	}
-	return s.PgConfig
+	return s.pgConfig
 }
 
-func (s *serviceProvider) GetGrpcConfig() config.GRPCConfig {
-	if s.GrpcConfig == nil {
+func (s *serviceProvider) GrpcConfig() config.GRPCConfig {
+	if s.grpcConfig == nil {
 		grpc, err := config.NewGRPCConfig()
 		if err != nil {
 			log.Fatal(err)
 		}
-		s.GrpcConfig = grpc
+		s.grpcConfig = grpc
 
 	}
-	return s.GrpcConfig
+	return s.grpcConfig
 }
 
-func (s *serviceProvider) GetClient(ctx context.Context) db.Client {
-	if s.ClientDB == nil {
-		clientdb, err := pg.NewDBClient(ctx, s.GetPgConfig().DSN())
+func (s *serviceProvider) ClientDb(ctx context.Context) db.Client {
+	if s.clientDB == nil {
+		clientDb, err := pg.NewDBClient(ctx, s.PgConfig().DSN())
 		if err != nil {
 			log.Fatal(err)
 		}
-		if err = clientdb.DB().Ping(ctx); err != nil {
+		if err = clientDb.DB().Ping(ctx); err != nil {
 			log.Fatal(err)
 		}
 
-		closer.Add(clientdb.Close)
-		s.ClientDB = clientdb
+		closer.Add(clientDb.Close)
+		s.clientDB = clientDb
 
 	}
-	return s.ClientDB
+	return s.clientDB
 }
 
-func (s *serviceProvider) GetRepository(ctx context.Context) repository.UserRepository {
-	if s.Repository == nil {
-		rep := repos.NewRepository(s.GetClient(ctx))
-		s.Repository = rep
+func (s *serviceProvider) UserRepository(ctx context.Context) repository.UserRepository {
+	if s.repositoryUser == nil {
+		rep := repos_user.NewRepository(s.ClientDb(ctx))
+		s.repositoryUser = rep
 	}
-	return s.Repository
+	return s.repositoryUser
 
 }
 
-func (s *serviceProvider) GetTxManager(ctx context.Context) db.TxManager {
-	if s.TxManager == nil {
-		man := transaction.NewManager(s.ClientDB.DB())
-		s.TxManager = man
+func (s *serviceProvider) TxManager(ctx context.Context) db.TxManager {
+	if s.txManager == nil {
+		man := transaction.NewManager(s.ClientDb(ctx).DB())
+		s.txManager = man
 	}
-	return s.TxManager
+	return s.txManager
 }
 
 func (s *serviceProvider) Logs(ctx context.Context) repository.Logger {
-	if s.Logger == nil {
-		log := logs.NewLogs(s.GetClient(ctx))
-		s.Logger = log
+	if s.logger == nil {
+		log := logs.NewLogs(s.ClientDb(ctx))
+		s.logger = log
 	}
-	return s.Logger
+	return s.logger
 }
 
-func (s *serviceProvider) GetService(ctx context.Context) service.UserService {
-	if s.Service == nil {
-		service := serv.NewService(s.GetRepository(ctx), s.GetTxManager(ctx), s.Logs(ctx))
-		s.Service = service
+func (s *serviceProvider) UserService(ctx context.Context) service.UserService {
+	if s.serviceUser == nil {
+		service := serv_user.NewService(s.UserRepository(ctx), s.TxManager(ctx), s.Logs(ctx))
+		s.serviceUser = service
 	}
-	return s.Service
+	return s.serviceUser
 }
 
-func (s *serviceProvider) GetImplemintation(ctx context.Context) *api.Implementation {
-	if s.Implemintation == nil {
-		impl := api.NewImplementation(s.GetService(ctx))
-		s.Implemintation = impl
+func (s *serviceProvider) ImplementationUser(ctx context.Context) *api_user.Implementation {
+	if s.implementation == nil {
+		impl := api_user.NewImplementation(s.UserService(ctx))
+		s.implementation = impl
 	}
-	return s.Implemintation
+	return s.implementation
+}
+
+func (s *serviceProvider) ImplementationAuth(cxt context.Context) *api_auth.ImplementationAuthentication {
+	if s.implementationAuth == nil {
+		impl := api_auth.NewImplementationAuthentication(s.ServiceAuth(cxt))
+		s.implementationAuth = impl
+	}
+	return s.implementationAuth
+}
+
+func (s *serviceProvider) ImplementationAccess(cxt context.Context) *api_access.ImplementationAccess {
+	if s.implementationAccess == nil {
+		impl := api_access.NewImplementationAccess(s.ServiceAccess(cxt))
+		s.implementationAccess = impl
+	}
+	return s.implementationAccess
+}
+func (s *serviceProvider) AccessRepository(ctx context.Context) repository.AccessRepository {
+	if s.repositoryAccess == nil {
+		reposAccess := repos_access.NewAccessRepository(s.ClientDb(ctx))
+		s.repositoryAccess = reposAccess
+	}
+	return s.repositoryAccess
+}
+
+func (s *serviceProvider) AuthenticateRepository(ctx context.Context) repository.AuthenticationRepository {
+	if s.repositoryAuth == nil {
+		reposAuth := repos_auth.NewAuthRepos(s.ClientDb(ctx))
+		s.repositoryAuth = reposAuth
+	}
+	return s.repositoryAuth
+}
+
+func (s *serviceProvider) ServiceAccess(ctx context.Context) service.AccessService {
+	if s.serviceAccess == nil {
+		serv := access.NewAccessService(s.AccessRepository(ctx))
+		s.serviceAccess = serv
+	}
+	return s.serviceAccess
+}
+
+func (s *serviceProvider) ServiceAuth(ctx context.Context) service.AuthenticationService {
+	if s.serviceAuthentication == nil {
+		serv := authentication.NewAuthenticationService(s.AuthenticateRepository(ctx))
+		s.serviceAuthentication = serv
+	}
+	return s.serviceAuthentication
 }

@@ -12,6 +12,7 @@ require (
 
 require (
 	github.com/cockroachdb/apd v1.1.0 // indirect
+	github.com/dgrijalva/jwt-go v3.2.0+incompatible // indirect
 	github.com/envoyproxy/protoc-gen-validate v1.2.1 // indirect
 	github.com/gofrs/uuid v4.4.0+incompatible // indirect
 	github.com/iancoleman/strcase v0.3.0 // indirect

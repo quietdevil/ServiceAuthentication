@@ -3,11 +3,20 @@ package user
 import (
 	"context"
 	"serviceauth/internal/model"
+	"serviceauth/internal/utils"
 )
 
 func (s *serviceUser) Create(ctx context.Context, user *model.UserInfo) (int, error) {
 	var id int
-	err := s.txManager.ReadCommited(ctx, func(ctx context.Context) error {
+
+	hashPassword, err := utils.HashPasswordBcrypt(user.Password, 10)
+
+	if err != nil {
+		return 0, err
+	}
+	user.Password = hashPassword
+
+	err = s.txManager.ReadCommited(ctx, func(ctx context.Context) error {
 		// l := r.Logs{Name: user.Name, Description: "Create User service layer success", MethodName: informationmethod.MethodCreate}
 		// err := s.logs.Create(ctx, l)
 		// if err != nil {

@@ -1,4 +1,4 @@
-module serviceauth
+module github.com/quietdevil/serviceauth
 
 go 1.23.2
 

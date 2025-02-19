@@ -3,7 +3,6 @@ package authentication
 import (
 	"context"
 	"errors"
-	"fmt"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"serviceauth/internal/model"
@@ -19,16 +18,16 @@ const (
 )
 
 func (a *AuthenticationService) Login(ctx context.Context, login *model.UserLogin) (string, error) {
-	//Ходит в репо слой за юзером
 	userModel, err := a.reposAccess.GetUserByUsername(ctx, login.Username)
 	if err != nil {
 		return "", err
 	}
-	//Проверяет пароли
-	fmt.Println(userModel.UserInfo.Password)
-	if login.Password != userModel.UserInfo.Password {
+
+	err = utils.ComparePasswords(userModel.Password, login.Password)
+	if err != nil {
 		return "", status.Error(codes.PermissionDenied, "password does not match")
 	}
+
 	refreshToken, err := utils.GenerateToken(userModel.UserInfo, []byte(RefreshSecretKey), refreshTokenExpiration)
 	if err != nil {
 		return "", errors.New("failed to generate token")

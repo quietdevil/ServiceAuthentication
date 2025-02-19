@@ -33,19 +33,21 @@ func (a *AccessService) Check(ctx context.Context, endpoint string) error {
 		return err
 	}
 	//todo Обращение в бд за правами
-	RoleMap := accessHandle(ctx)
 
-	role, ok := RoleMap[endpoint]
+	roleName, err := a.reposAccess.Role(ctx, endpoint)
+	if err != nil {
+		return err
+	}
 
-	if claims.Role != role {
+	if claims.Role != roleName {
 		return status.Error(codes.PermissionDenied, "access denied")
 	}
 
 	return nil
 }
 
-func accessHandle(context.Context) map[string]string {
-	accessHandleMap := make(map[string]string)
-	accessHandleMap["/auth_v1.AuthenticationUserV1/Get"] = "admin"
+func accessHandle(context.Context) map[string]int32 {
+	accessHandleMap := make(map[string]int32)
+	accessHandleMap["/auth_v1.AuthenticationUserV1/Get"] = 0
 	return accessHandleMap
 }

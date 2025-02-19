@@ -1,15 +1,16 @@
 package model
 
 import (
+	"database/sql"
 	"github.com/dgrijalva/jwt-go"
 	"time"
 )
 
 type User struct {
-	Id         int
-	UserInfo   UserInfo
-	Created_at time.Time
-	Updated_at time.Time
+	Id int
+	UserInfo
+	CreatedAt time.Time
+	UpdatedAt sql.NullTime
 }
 
 type UserInfo struct {

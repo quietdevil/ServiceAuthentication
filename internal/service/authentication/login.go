@@ -3,6 +3,7 @@ package authentication
 import (
 	"context"
 	"errors"
+	"fmt"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"serviceauth/internal/model"
@@ -24,10 +25,10 @@ func (a *AuthenticationService) Login(ctx context.Context, login *model.UserLogi
 		return "", err
 	}
 	//Проверяет пароли
+	fmt.Println(userModel.UserInfo.Password)
 	if login.Password != userModel.UserInfo.Password {
 		return "", status.Error(codes.PermissionDenied, "password does not match")
 	}
-	userModel.UserInfo.Role = "admin"
 	refreshToken, err := utils.GenerateToken(userModel.UserInfo, []byte(RefreshSecretKey), refreshTokenExpiration)
 	if err != nil {
 		return "", errors.New("failed to generate token")

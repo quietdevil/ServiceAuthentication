@@ -13,16 +13,25 @@ func FromGrpsIntoModel(req *desc.CreateRequest) *model.UserInfo {
 		Name:     req.Name,
 		Email:    req.Email,
 		Password: req.Password,
+		Role:     req.Role.String(),
 	}
 }
 
 func FromModelIntoGrpc(model *model.User) *desc.GetResponse {
+	var updatedAt *timestamppb.Timestamp
+	if model.UpdatedAt.Valid {
+		updatedAt = timestamppb.New(model.UpdatedAt.Time)
+	}
+
+	v, _ := desc.Enum_value[model.Role]
+
 	return &desc.GetResponse{
 		Id:        int64(model.Id),
 		Name:      model.UserInfo.Name,
 		Email:     model.UserInfo.Email,
-		CreatedAt: timestamppb.New(model.Created_at),
-		UpdatedAt: timestamppb.New(model.Updated_at),
+		Role:      desc.Enum(v),
+		CreatedAt: timestamppb.New(model.CreatedAt),
+		UpdatedAt: updatedAt,
 	}
 }
 

@@ -20,7 +20,7 @@ type Logger interface {
 }
 
 type AccessRepository interface {
-	Roles(context.Context, int) error
+	Role(context.Context, string) (string, error)
 }
 
 type AuthenticationRepository interface {

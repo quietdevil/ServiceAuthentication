@@ -12,8 +12,9 @@ func ReposUserIntoServiceFromRepos(user modelRepo.User) *model.User {
 			Name:     user.Name,
 			Email:    user.Email,
 			Password: user.Password,
+			Role:     user.Role.String(),
 		},
-		Created_at: user.Created_at,
-		Updated_at: user.Updated_at,
+		CreatedAt: user.CreatedAt,
+		UpdatedAt: user.UpdatedAt,
 	}
 }

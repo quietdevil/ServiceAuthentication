@@ -1,16 +1,21 @@
 package model
 
-import "time"
+import (
+	"database/sql"
+	"serviceauth/pkg/auth_user_v1"
+	"time"
+)
 
 type User struct {
 	Id int
 	UserInfo
-	Created_at time.Time
-	Updated_at time.Time
+	CreatedAt time.Time
+	UpdatedAt sql.NullTime
 }
 
 type UserInfo struct {
 	Name     string
 	Email    string
 	Password string
+	Role     auth_user_v1.Enum
 }

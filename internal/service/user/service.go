@@ -1,10 +1,9 @@
 package user
 
 import (
-	"serviceauth/internal/repository"
-	"serviceauth/internal/service"
-
 	db "github.com/quietdevil/Platform_common/pkg/db"
+	"github.com/quietdevil/ServiceAuthentication/internal/repository"
+	"github.com/quietdevil/ServiceAuthentication/internal/service"
 )
 
 type serviceUser struct {

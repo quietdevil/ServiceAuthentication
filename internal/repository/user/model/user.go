@@ -2,7 +2,8 @@ package model
 
 import (
 	"database/sql"
-	"serviceauth/pkg/auth_user_v1"
+	"github.com/quietdevil/ServiceAuthentication/pkg/auth_user_v1"
+
 	"time"
 )
 

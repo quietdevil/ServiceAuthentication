@@ -2,8 +2,8 @@ package user
 
 import (
 	"context"
-	"serviceauth/internal/model"
-	"serviceauth/internal/utils"
+	"github.com/quietdevil/ServiceAuthentication/internal/model"
+	"github.com/quietdevil/ServiceAuthentication/internal/utils"
 )
 
 func (s *serviceUser) Create(ctx context.Context, user *model.UserInfo) (int, error) {

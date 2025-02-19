@@ -1,8 +1,8 @@
 package convertor
 
 import (
-	"serviceauth/internal/model"
-	modelRepo "serviceauth/internal/repository/user/model"
+	"github.com/quietdevil/ServiceAuthentication/internal/model"
+	modelRepo "github.com/quietdevil/ServiceAuthentication/internal/repository/user/model"
 )
 
 func ReposUserIntoServiceFromRepos(user modelRepo.User) *model.User {

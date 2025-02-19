@@ -1,8 +1,8 @@
 package access
 
 import (
-	"serviceauth/internal/service"
-	"serviceauth/pkg/access_v1"
+	"github.com/quietdevil/ServiceAuthentication/internal/service"
+	"github.com/quietdevil/ServiceAuthentication/pkg/access_v1"
 )
 
 type ImplementationAccess struct {

@@ -2,10 +2,9 @@ package logs
 
 import (
 	"context"
-	"serviceauth/internal/repository"
-	l "serviceauth/internal/repository/logs/model"
-
 	db "github.com/quietdevil/Platform_common/pkg/db"
+	"github.com/quietdevil/ServiceAuthentication/internal/repository"
+	l "github.com/quietdevil/ServiceAuthentication/internal/repository/logs/model"
 )
 
 type Logs struct {

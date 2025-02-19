@@ -3,7 +3,7 @@ package access
 import (
 	"context"
 	"github.com/quietdevil/Platform_common/pkg/db"
-	"serviceauth/internal/repository"
+	"github.com/quietdevil/ServiceAuthentication/internal/repository"
 )
 
 type accessRepos struct {

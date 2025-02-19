@@ -1,8 +1,8 @@
 package access
 
 import (
-	"serviceauth/internal/repository"
-	"serviceauth/internal/service"
+	"github.com/quietdevil/ServiceAuthentication/internal/repository"
+	"github.com/quietdevil/ServiceAuthentication/internal/service"
 )
 
 type AccessService struct {

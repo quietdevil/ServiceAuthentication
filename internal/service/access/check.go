@@ -2,11 +2,12 @@ package access
 
 import (
 	"context"
+	"github.com/quietdevil/ServiceAuthentication/internal/service/authentication"
+	"github.com/quietdevil/ServiceAuthentication/internal/utils"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/status"
-	"serviceauth/internal/service/authentication"
-	"serviceauth/internal/utils"
+
 	"strings"
 )
 

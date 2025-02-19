@@ -3,10 +3,11 @@ package authentication
 import (
 	"context"
 	"errors"
+	"github.com/quietdevil/ServiceAuthentication/internal/model"
+	"github.com/quietdevil/ServiceAuthentication/internal/utils"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
-	"serviceauth/internal/model"
-	"serviceauth/internal/utils"
+
 	"time"
 )
 

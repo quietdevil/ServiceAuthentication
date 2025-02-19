@@ -1,10 +1,9 @@
 package convector
 
 import (
-	"serviceauth/internal/model"
-	desc "serviceauth/pkg/auth_user_v1"
-	auth "serviceauth/pkg/auth_v1"
-
+	"github.com/quietdevil/ServiceAuthentication/internal/model"
+	desc "github.com/quietdevil/ServiceAuthentication/pkg/auth_user_v1"
+	auth "github.com/quietdevil/ServiceAuthentication/pkg/auth_v1"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 

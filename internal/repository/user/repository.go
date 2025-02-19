@@ -2,8 +2,8 @@ package user
 
 import (
 	"context"
-	"serviceauth/internal/model"
-	"serviceauth/internal/repository"
+	"github.com/quietdevil/ServiceAuthentication/internal/model"
+	"github.com/quietdevil/ServiceAuthentication/internal/repository"
 
 	db "github.com/quietdevil/Platform_common/pkg/db"
 )

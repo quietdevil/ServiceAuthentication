@@ -2,7 +2,7 @@ package authentication
 
 import (
 	"github.com/quietdevil/Platform_common/pkg/db"
-	"serviceauth/internal/repository"
+	"github.com/quietdevil/ServiceAuthentication/internal/repository"
 )
 
 type AuthRepos struct {

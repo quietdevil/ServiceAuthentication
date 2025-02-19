@@ -2,8 +2,8 @@ package main
 
 import (
 	"context"
+	"github.com/quietdevil/ServiceAuthentication/internal/app"
 	"log"
-	"serviceauth/internal/app"
 )
 
 func main() {

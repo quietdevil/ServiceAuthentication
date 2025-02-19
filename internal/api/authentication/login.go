@@ -2,8 +2,8 @@ package authentication
 
 import (
 	"context"
-	"serviceauth/internal/convector"
-	auth "serviceauth/pkg/auth_v1"
+	"github.com/quietdevil/ServiceAuthentication/internal/convector"
+	auth "github.com/quietdevil/ServiceAuthentication/pkg/auth_v1"
 )
 
 func (i *ImplementationAuthentication) Login(ctx context.Context, req *auth.LoginRequest) (*auth.LoginResponse, error) {

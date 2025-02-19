@@ -2,8 +2,8 @@ package repository
 
 import (
 	"context"
-	"serviceauth/internal/model"
-	l "serviceauth/internal/repository/logs/model"
+	"github.com/quietdevil/ServiceAuthentication/internal/model"
+	l "github.com/quietdevil/ServiceAuthentication/internal/repository/logs/model"
 )
 
 // urlExample := "postgres://username:password@localhost:5432/database_name"

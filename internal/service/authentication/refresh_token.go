@@ -2,10 +2,10 @@ package authentication
 
 import (
 	"context"
+	"github.com/quietdevil/ServiceAuthentication/internal/model"
+	"github.com/quietdevil/ServiceAuthentication/internal/utils"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
-	"serviceauth/internal/model"
-	"serviceauth/internal/utils"
 )
 
 func (a *AuthenticationService) GetRefreshToken(ctx context.Context, refreshToken string) (string, error) {

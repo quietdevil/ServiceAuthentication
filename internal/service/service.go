@@ -2,7 +2,7 @@ package service
 
 import (
 	"context"
-	"serviceauth/internal/model"
+	"github.com/quietdevil/ServiceAuthentication/internal/model"
 )
 
 type UserService interface {

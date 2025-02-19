@@ -3,7 +3,8 @@ package utils
 import (
 	"github.com/dgrijalva/jwt-go"
 	"github.com/pkg/errors"
-	"serviceauth/internal/model"
+	"github.com/quietdevil/ServiceAuthentication/internal/model"
+
 	"time"
 )
 

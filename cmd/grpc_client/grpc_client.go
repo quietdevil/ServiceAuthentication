@@ -4,11 +4,11 @@ import (
 	"context"
 	"flag"
 	"fmt"
+	"github.com/quietdevil/ServiceAuthentication/pkg/access_v1"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/grpc/metadata"
 	"log"
-	"serviceauth/pkg/access_v1"
 )
 
 var accessToken *string = flag.String("a", "", "")

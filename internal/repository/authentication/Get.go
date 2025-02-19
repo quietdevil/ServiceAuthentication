@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/quietdevil/Platform_common/pkg/db"
-	"serviceauth/internal/model"
+	"github.com/quietdevil/ServiceAuthentication/internal/model"
 )
 
 func (r *AuthRepos) GetUserByUsername(ctx context.Context, username string) (*model.User, error) {

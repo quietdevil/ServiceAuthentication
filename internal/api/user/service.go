@@ -1,8 +1,8 @@
 package user
 
 import (
-	"serviceauth/internal/service"
-	desc "serviceauth/pkg/auth_user_v1"
+	"github.com/quietdevil/ServiceAuthentication/internal/service"
+	desc "github.com/quietdevil/ServiceAuthentication/pkg/auth_user_v1"
 )
 
 type Implementation struct {

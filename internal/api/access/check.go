@@ -2,8 +2,8 @@ package access
 
 import (
 	"context"
+	"github.com/quietdevil/ServiceAuthentication/pkg/access_v1"
 	"google.golang.org/protobuf/types/known/emptypb"
-	"serviceauth/pkg/access_v1"
 )
 
 func (i *ImplementationAccess) Check(ctx context.Context, req *access_v1.CheckRequest) (*emptypb.Empty, error) {

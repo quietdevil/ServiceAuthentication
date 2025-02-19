@@ -2,7 +2,7 @@ package authentication
 
 import (
 	"context"
-	auth "serviceauth/pkg/auth_v1"
+	auth "github.com/quietdevil/ServiceAuthentication/pkg/auth_v1"
 )
 
 func (i *ImplementationAuthentication) GetRefreshToken(ctx context.Context, req *auth.GetRefreshTokenRequest) (*auth.GetRefreshTokenResponse, error) {

@@ -24,9 +24,11 @@ import (
 	closer "github.com/quietdevil/Platform_common/pkg/closer"
 )
 
-type serviceProvider struct {
+type ServiceProvider struct {
 	pgConfig              config.PgConfig
 	grpcConfig            config.GRPCConfig
+	authenticationConfig  *config.AuthenticationConfig
+	openSSlConfig         config.OpensslConfig
 	clientDB              db.Client
 	txManager             db.TxManager
 	logger                repository.Logger
@@ -41,11 +43,22 @@ type serviceProvider struct {
 	implementationAccess  *api_access.ImplementationAccess
 }
 
-func NewServiceProvider() *serviceProvider {
-	return &serviceProvider{}
+func NewServiceProvider() *ServiceProvider {
+	return &ServiceProvider{}
 }
 
-func (s *serviceProvider) PgConfig() config.PgConfig {
+func (s *ServiceProvider) OpensslConfig() config.OpensslConfig {
+	if s.openSSlConfig == nil {
+		conf, err := config.NewOpensslConfig()
+		if err != nil {
+			log.Fatal(err)
+		}
+		s.openSSlConfig = conf
+	}
+	return s.openSSlConfig
+}
+
+func (s *ServiceProvider) PgConfig() config.PgConfig {
 	if s.pgConfig == nil {
 		pgConf, err := config.NewPgConfig()
 		if err != nil {
@@ -57,7 +70,7 @@ func (s *serviceProvider) PgConfig() config.PgConfig {
 	return s.pgConfig
 }
 
-func (s *serviceProvider) GrpcConfig() config.GRPCConfig {
+func (s *ServiceProvider) GrpcConfig() config.GRPCConfig {
 	if s.grpcConfig == nil {
 		grpc, err := config.NewGRPCConfig()
 		if err != nil {
@@ -69,7 +82,18 @@ func (s *serviceProvider) GrpcConfig() config.GRPCConfig {
 	return s.grpcConfig
 }
 
-func (s *serviceProvider) ClientDb(ctx context.Context) db.Client {
+func (s *ServiceProvider) AuthConfig() *config.AuthenticationConfig {
+	if s.authenticationConfig == nil {
+		conf, err := config.NewAuthConfig()
+		if err != nil {
+			log.Fatal(err)
+		}
+		s.authenticationConfig = conf
+	}
+	return s.authenticationConfig
+}
+
+func (s *ServiceProvider) ClientDb(ctx context.Context) db.Client {
 	if s.clientDB == nil {
 		clientDb, err := pg.NewDBClient(ctx, s.PgConfig().DSN())
 		if err != nil {
@@ -86,7 +110,7 @@ func (s *serviceProvider) ClientDb(ctx context.Context) db.Client {
 	return s.clientDB
 }
 
-func (s *serviceProvider) UserRepository(ctx context.Context) repository.UserRepository {
+func (s *ServiceProvider) UserRepository(ctx context.Context) repository.UserRepository {
 	if s.repositoryUser == nil {
 		rep := repos_user.NewRepository(s.ClientDb(ctx))
 		s.repositoryUser = rep
@@ -95,7 +119,7 @@ func (s *serviceProvider) UserRepository(ctx context.Context) repository.UserRep
 
 }
 
-func (s *serviceProvider) TxManager(ctx context.Context) db.TxManager {
+func (s *ServiceProvider) TxManager(ctx context.Context) db.TxManager {
 	if s.txManager == nil {
 		man := transaction.NewManager(s.ClientDb(ctx).DB())
 		s.txManager = man
@@ -103,23 +127,23 @@ func (s *serviceProvider) TxManager(ctx context.Context) db.TxManager {
 	return s.txManager
 }
 
-func (s *serviceProvider) Logs(ctx context.Context) repository.Logger {
+func (s *ServiceProvider) Logs(ctx context.Context) repository.Logger {
 	if s.logger == nil {
-		log := logs.NewLogs(s.ClientDb(ctx))
-		s.logger = log
+		l := logs.NewLogs(s.ClientDb(ctx))
+		s.logger = l
 	}
 	return s.logger
 }
 
-func (s *serviceProvider) UserService(ctx context.Context) service.UserService {
+func (s *ServiceProvider) UserService(ctx context.Context) service.UserService {
 	if s.serviceUser == nil {
-		service := serv_user.NewService(s.UserRepository(ctx), s.TxManager(ctx), s.Logs(ctx))
-		s.serviceUser = service
+		serviceU := serv_user.NewService(s.UserRepository(ctx), s.TxManager(ctx), s.Logs(ctx))
+		s.serviceUser = serviceU
 	}
 	return s.serviceUser
 }
 
-func (s *serviceProvider) ImplementationUser(ctx context.Context) *api_user.Implementation {
+func (s *ServiceProvider) ImplementationUser(ctx context.Context) *api_user.Implementation {
 	if s.implementation == nil {
 		impl := api_user.NewImplementation(s.UserService(ctx))
 		s.implementation = impl
@@ -127,7 +151,7 @@ func (s *serviceProvider) ImplementationUser(ctx context.Context) *api_user.Impl
 	return s.implementation
 }
 
-func (s *serviceProvider) ImplementationAuth(cxt context.Context) *api_auth.ImplementationAuthentication {
+func (s *ServiceProvider) ImplementationAuth(cxt context.Context) *api_auth.ImplementationAuthentication {
 	if s.implementationAuth == nil {
 		impl := api_auth.NewImplementationAuthentication(s.ServiceAuth(cxt))
 		s.implementationAuth = impl
@@ -135,14 +159,14 @@ func (s *serviceProvider) ImplementationAuth(cxt context.Context) *api_auth.Impl
 	return s.implementationAuth
 }
 
-func (s *serviceProvider) ImplementationAccess(cxt context.Context) *api_access.ImplementationAccess {
+func (s *ServiceProvider) ImplementationAccess(cxt context.Context) *api_access.ImplementationAccess {
 	if s.implementationAccess == nil {
 		impl := api_access.NewImplementationAccess(s.ServiceAccess(cxt))
 		s.implementationAccess = impl
 	}
 	return s.implementationAccess
 }
-func (s *serviceProvider) AccessRepository(ctx context.Context) repository.AccessRepository {
+func (s *ServiceProvider) AccessRepository(ctx context.Context) repository.AccessRepository {
 	if s.repositoryAccess == nil {
 		reposAccess := repos_access.NewAccessRepository(s.ClientDb(ctx))
 		s.repositoryAccess = reposAccess
@@ -150,7 +174,7 @@ func (s *serviceProvider) AccessRepository(ctx context.Context) repository.Acces
 	return s.repositoryAccess
 }
 
-func (s *serviceProvider) AuthenticateRepository(ctx context.Context) repository.AuthenticationRepository {
+func (s *ServiceProvider) AuthenticateRepository(ctx context.Context) repository.AuthenticationRepository {
 	if s.repositoryAuth == nil {
 		reposAuth := repos_auth.NewAuthRepos(s.ClientDb(ctx))
 		s.repositoryAuth = reposAuth
@@ -158,17 +182,17 @@ func (s *serviceProvider) AuthenticateRepository(ctx context.Context) repository
 	return s.repositoryAuth
 }
 
-func (s *serviceProvider) ServiceAccess(ctx context.Context) service.AccessService {
+func (s *ServiceProvider) ServiceAccess(ctx context.Context) service.AccessService {
 	if s.serviceAccess == nil {
-		serv := access.NewAccessService(s.AccessRepository(ctx))
+		serv := access.NewAccessService(s.AccessRepository(ctx), s.AuthConfig())
 		s.serviceAccess = serv
 	}
 	return s.serviceAccess
 }
 
-func (s *serviceProvider) ServiceAuth(ctx context.Context) service.AuthenticationService {
+func (s *ServiceProvider) ServiceAuth(ctx context.Context) service.AuthenticationService {
 	if s.serviceAuthentication == nil {
-		serv := authentication.NewAuthenticationService(s.AuthenticateRepository(ctx))
+		serv := authentication.NewAuthenticationService(s.AuthenticateRepository(ctx), s.AuthConfig())
 		s.serviceAuthentication = serv
 	}
 	return s.serviceAuthentication

@@ -2,7 +2,6 @@ package access
 
 import (
 	"context"
-	"github.com/quietdevil/ServiceAuthentication/internal/service/authentication"
 	"github.com/quietdevil/ServiceAuthentication/internal/utils"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/metadata"
@@ -10,8 +9,6 @@ import (
 
 	"strings"
 )
-
-const authPrefix = "Bearer"
 
 func (a *AccessService) Check(ctx context.Context, endpoint string) error {
 	md, ok := metadata.FromIncomingContext(ctx)
@@ -22,18 +19,17 @@ func (a *AccessService) Check(ctx context.Context, endpoint string) error {
 	if !ok || len(authHeader) != 1 {
 		return status.Error(codes.InvalidArgument, "Missing Authorization Token+Header")
 	}
-	if !strings.HasPrefix(authHeader[0], authPrefix) {
+	if !strings.HasPrefix(authHeader[0], a.configAuth.AuthenticationPrefix()) {
 		return status.Error(codes.InvalidArgument, "Invalid Authorization Header")
 	}
 
-	token := strings.TrimPrefix(authHeader[0], authPrefix)
+	token := strings.TrimPrefix(authHeader[0], a.configAuth.AuthenticationPrefix())
 
-	claims, err := utils.VerifyToken(token[1:], []byte(authentication.AccessSecretKey))
+	claims, err := utils.VerifyToken(token[1:], []byte(a.configAuth.AccessSecretKey()))
 
 	if err != nil {
 		return err
 	}
-	//todo Обращение в бд за правами
 
 	roleName, err := a.reposAccess.Role(ctx, endpoint)
 	if err != nil {
@@ -45,10 +41,4 @@ func (a *AccessService) Check(ctx context.Context, endpoint string) error {
 	}
 
 	return nil
-}
-
-func accessHandle(context.Context) map[string]int32 {
-	accessHandleMap := make(map[string]int32)
-	accessHandleMap["/auth_v1.AuthenticationUserV1/Get"] = 0
-	return accessHandleMap
 }

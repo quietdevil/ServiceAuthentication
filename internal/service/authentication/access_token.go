@@ -9,7 +9,7 @@ import (
 )
 
 func (a *AuthenticationService) GetAccessToken(ctx context.Context, refreshToken string) (string, error) {
-	claims, err := utils.VerifyToken(refreshToken, []byte(RefreshSecretKey))
+	claims, err := utils.VerifyToken(refreshToken, []byte(a.configAuth.RefreshSecretKey()))
 
 	if err != nil {
 		return "", err
@@ -18,7 +18,7 @@ func (a *AuthenticationService) GetAccessToken(ctx context.Context, refreshToken
 	accessToken, err := utils.GenerateToken(model.UserInfo{
 		Role: claims.Role,
 		Name: claims.Username,
-	}, []byte(AccessSecretKey), accessTokenExpiration)
+	}, []byte(a.configAuth.AccessSecretKey()), a.configAuth.AccessTime())
 	if err != nil {
 		return "", status.Error(codes.Unauthenticated, "failed to generate token")
 	}

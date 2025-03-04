@@ -9,8 +9,8 @@ import (
 )
 
 func GrpcAuthClient(host, port, secretPath string) *auth_v1.AuthenticationV1Client {
-	tramCreds, err := credentials.NewClientTLSFromFile(secretPath, "")
-	conn, err := grpc.NewClient(net.JoinHostPort(host, port), grpc.WithTransportCredentials(tramCreds))
+	tramCredis, err := credentials.NewClientTLSFromFile(secretPath, "")
+	conn, err := grpc.NewClient(net.JoinHostPort(host, port), grpc.WithTransportCredentials(tramCredis))
 	if err != nil {
 		log.Fatal(err)
 	}

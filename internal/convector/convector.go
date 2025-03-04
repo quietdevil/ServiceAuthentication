@@ -1,4 +1,4 @@
-package convector
+	package convector
 
 import (
 	"github.com/quietdevil/ServiceAuthentication/internal/model"

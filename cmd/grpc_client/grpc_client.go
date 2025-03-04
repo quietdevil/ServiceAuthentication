@@ -8,7 +8,7 @@ import (
 	"net"
 )
 
-func GrpcAuthClient(host, port, secretPath string) *auth_v1.AuthenticationV1Client {
+func GrpcAuthClient(host, port, secretPath string) auth_v1.AuthenticationV1Client {
 	tramCredis, err := credentials.NewClientTLSFromFile(secretPath, "")
 	conn, err := grpc.NewClient(net.JoinHostPort(host, port), grpc.WithTransportCredentials(tramCredis))
 	if err != nil {

@@ -2,7 +2,6 @@ package authentication
 
 import (
 	"context"
-	"fmt"
 	"github.com/quietdevil/Platform_common/pkg/db"
 	"github.com/quietdevil/ServiceAuthentication/internal/model"
 )
@@ -27,7 +26,6 @@ func (r *AuthRepos) GetUserByUsername(ctx context.Context, username string) (*mo
 
 		row.Scan(&user.Id, &user.UserInfo.Name, &user.UserInfo.Email, &user.UserInfo.Password, &user.UserInfo.Role, &user.CreatedAt, &user.UpdatedAt)
 	}
-	fmt.Println(user)
 	return &user, nil
 
 }

@@ -83,6 +83,7 @@ vendor-proto:
 
 
 gen-cert:
+
 	openssl genrsa -out keys/ca.key 4096
 	openssl req -new -x509 -key keys/ca.key -sha256 -subj '/C=US/ST=NJ/O=CA, Inc.' -days 365 -out keys/ca.cert
 	openssl genrsa -out keys/service.key 4096

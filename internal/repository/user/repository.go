@@ -23,7 +23,7 @@ func (r *repos) Get(ctx context.Context, id int) (*model.User, error) {
 
 	query := db.Query{
 		Name:     "repository_get",
-		QueryStr: "SELECT id, name, email, password,roles,created_at, updated_at FROM users WHERE id=$1",
+		QueryStr: "SELECT id, name, email, password,role,created_at, updated_at FROM users WHERE id=$1",
 	}
 
 	//switch a.(type) {
@@ -50,7 +50,7 @@ func (r *repos) Create(ctx context.Context, user *model.UserInfo) (int, error) {
 
 	query := db.Query{
 		Name:     "repository_create",
-		QueryStr: "INSERT INTO users (name, email, password, roles) VALUES ($1, $2, $3, $4) RETURNING id",
+		QueryStr: "INSERT INTO users (name, email, password, role) VALUES ($1, $2, $3, $4) RETURNING id",
 	}
 
 	row, err := r.db.DB().ContextQuery(ctx, query, user.Name, user.Email, user.Password, user.Role)
